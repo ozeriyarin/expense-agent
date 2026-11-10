@@ -36,4 +36,4 @@ Out: categorization, DB writes, UI.
 
 ## Status
 
-Criteria 1 to 7 done 2026-11-10 (session 1). Criterion 8 open.
+Criteria 1 to 8 done 2026-11-10.
