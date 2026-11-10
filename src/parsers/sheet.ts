@@ -80,8 +80,8 @@ export function isoDate(v: Cell): string | null {
   if (v instanceof Date) return Number.isNaN(v.getTime()) ? null : isoFromDate(v);
   if (typeof v === "number") {
     if (v < 20_000 || v > 80_000) return null; // outside 1954..2119: an amount, not a date
-    const parsed = XLSX.SSF.parse_date_code(v);
-    return parsed ? `${parsed.y}-${pad(parsed.m)}-${pad(parsed.d)}` : null;
+    const d = new Date(EXCEL_EPOCH_UTC + Math.round(v) * 86_400_000); // serial to UTC calendar day, no timezone involved
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
   }
   const s = v.trim();
   let m = /^(\d{1,2})[./-](\d{1,2})[./-](\d{2}|\d{4})$/.exec(s);

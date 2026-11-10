@@ -1,0 +1,52 @@
+/** Same schema for the local SQLite file and Turso (decision 2026-11-10). Applied with CREATE IF NOT EXISTS. */
+export const SCHEMA: string[] = [
+  `CREATE TABLE IF NOT EXISTS imports (
+    id INTEGER PRIMARY KEY,
+    file_hash TEXT NOT NULL UNIQUE,
+    file_name TEXT NOT NULL,
+    source TEXT NOT NULL,
+    account TEXT NOT NULL,
+    rows INTEGER NOT NULL,
+    imported_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
+  `CREATE TABLE IF NOT EXISTS transactions (
+    id INTEGER PRIMARY KEY,
+    txn_hash TEXT NOT NULL UNIQUE,
+    import_id INTEGER REFERENCES imports(id),
+    source TEXT NOT NULL,
+    account TEXT NOT NULL,
+    date TEXT NOT NULL,
+    billing_date TEXT,
+    merchant TEXT NOT NULL,
+    amount REAL NOT NULL,
+    currency TEXT NOT NULL,
+    original_amount REAL,
+    original_currency TEXT,
+    kind TEXT NOT NULL,
+    reference TEXT,
+    notes TEXT,
+    provisional INTEGER NOT NULL DEFAULT 0,
+    excluded INTEGER NOT NULL DEFAULT 0,
+    excluded_reason TEXT,
+    duplicate_group TEXT,
+    category TEXT,
+    subcategory TEXT,
+    confidence REAL,
+    categorized_by TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date)`,
+  `CREATE INDEX IF NOT EXISTS idx_transactions_merchant ON transactions(merchant)`,
+  `CREATE TABLE IF NOT EXISTS call_log (
+    id INTEGER PRIMARY KEY,
+    at TEXT NOT NULL DEFAULT (datetime('now')),
+    step TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    model TEXT NOT NULL,
+    input_tokens INTEGER NOT NULL,
+    output_tokens INTEGER NOT NULL,
+    cache_read_tokens INTEGER NOT NULL,
+    cost_usd REAL NOT NULL,
+    latency_ms INTEGER NOT NULL
+  )`,
+];
