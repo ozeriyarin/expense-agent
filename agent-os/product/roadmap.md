@@ -2,8 +2,8 @@
 
 | # | Milestone | Spec | Status |
 |---|---|---|---|
-| 1 | Repo, guards, Agent OS spec, core module skeleton, tracing wired | `specs/2026-11-10-v1-core` | in progress |
-| 2 | Parsers (Cal, Isracard, Hapoalim) + validation + dedup against real exports | | |
+| 1 | Repo, guards, Agent OS spec, core module skeleton, tracing wired | `specs/2026-11-10-v1-core` | done 2026-11-10 |
+| 2 | Parsers (Cal, Isracard, Hapoalim) + validation + dedup against real exports | `specs/2026-11-10-v2-parsers` | parsers done, dedup open |
 | 3 | Categorizer + eval harness seeded from the 8 filled months | | |
 | 4 | Chat path: rules guard + speculative LLM guard | | |
 | 5 | Excel export into the template | | |

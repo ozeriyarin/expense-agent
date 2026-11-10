@@ -10,4 +10,4 @@
 - [x] T8 core/redact, core/tracing, spans in hooks/walker/batches (AC 10)
 - [x] T9 providers/anthropic, providers/gemini thin adapters
 - [x] T10 tests for every criterion, typecheck green, guard self-test (AC 2, 11)
-- [ ] T11 first commit; ask Yarin about creating `ozeriyarin/expense-agent`
+- [x] T11 first commit d848e3d (GitHub remote: waiting for Yarin)
