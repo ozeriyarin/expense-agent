@@ -54,3 +54,16 @@ describe.skipIf(!available)("real October 2026 exports (private, local only)", (
     expect(acct.transactions.filter((t) => t.amount < 0)).toHaveLength(4);
   });
 });
+
+describe.skipIf(!available)("dedup over the real October exports (private, local only)", () => {
+  it("drops exactly the one pending duplicate, excludes 5 settlements, flags 4 same-day repeats", async () => {
+    const { dedup, active } = await import("../../src/dedup/index.js");
+    const all = readdirSync(dir).filter((f) => f.endsWith(".xlsx") && !f.includes("(1)")).flatMap((f) => parseExport(join(dir, f)).transactions);
+    const r = dedup(all); // the pending duplicate is a November row, so dedup runs over the whole export
+    expect(r.problems).toEqual([]);
+    expect(r.stats.pendingDropped).toBe(1);
+    expect(r.stats.settlements).toBe(5);
+    expect(r.stats.duplicateGroups).toBe(4); // real same-day same-amount repeats across the 3 months; kept and flagged for review
+    expect(active(r).filter((t) => inMonth(t, "2026-10") && t.source !== "hapoalim_account" && !(t.kind === "fee" && t.source === "isracard"))).toHaveLength(166);
+  });
+});
