@@ -16,6 +16,7 @@ export type TxnKind =
   | "transfer"
   | "salary"
   | "direct_debit"
+  | "cash_withdrawal"
   | "unknown";
 
 /** One normalized row. `amount` > 0 is money out, < 0 is money in. Parsers never log rows. */
@@ -44,6 +45,8 @@ export interface ParseResult {
   source: Source;
   account: string;
   transactions: Transaction[];
+  /** Total printed on the statement (Isracard title block); used to recognize the bank settlement row. */
+  statementTotal: number | null;
   /** Row numbers and reasons only; never merchant or amount text. */
   warnings: string[];
 }

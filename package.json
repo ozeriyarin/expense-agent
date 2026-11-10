@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "guard": "node scripts/guard-staged.mjs",
     "hooks:install": "git config core.hooksPath .githooks",
-    "import": "tsx --env-file-if-exists=.env src/cli/import.ts"
+    "import": "tsx --env-file-if-exists=.env src/cli/import.ts",
+    "questions": "tsx --env-file-if-exists=.env src/cli/questions.ts"
   },
   "license": "MIT",
   "devDependencies": {

@@ -28,6 +28,18 @@ function billingDateFrom(rows: Row[]): string | null {
   return `${year}-${dayMonth}`;
 }
 
+/** The title block carries the statement total next to the card name, e.g. "₪ 887.88". */
+function statementTotalFrom(rows: Row[]): number | null {
+  for (const r of rows) {
+    if (!r.some((c) => typeof c === "string" && /\d{4}/.test(c) && /מסטר|ויזה|כרטיס/.test(c))) continue;
+    for (let k = 1; k < r.length; k++) {
+      const v = num(r, k);
+      if (v !== null && typeof r[k] === "string" && String(r[k]).includes("₪")) return v;
+    }
+  }
+  return null;
+}
+
 function kindOf(details: string | null, merchant: string, amount: number, hasDate: boolean): TxnKind {
   if (amount < 0) return "refund";
   if (!hasDate || /דמי כרטיס|עמלה/.test(merchant)) return "fee";
@@ -46,6 +58,7 @@ export function parseIsracard(rows: Row[]): ParseResult {
   const titleCard = rows.slice(0, first).map((r) => str(r, 0)).find((s) => s && /\d{4}/.test(s)) ?? null;
   const account = lastFourDigits(titleCard) ?? "isracard";
   const billingDate = billingDateFrom(rows);
+  const statementTotal = statementTotalFrom(rows.slice(0, first));
   const provisional = rows.slice(0, first).some((r) => r.some((c) => typeof c === "string" && c.includes("אינו סופי")));
   const monthTitle = rows.slice(0, first).flatMap((r) => r).find((c) => typeof c === "string" && /(ינואר|פברואר|מרץ|אפריל|מאי|יוני|יולי|אוגוסט|ספטמבר|אוקטובר|נובמבר|דצמבר)\s+\d{4}/.test(c));
   void HEBREW_MONTHS;
@@ -109,5 +122,5 @@ export function parseIsracard(rows: Row[]): ParseResult {
       });
     }
   }
-  return { source: "isracard", account, transactions, warnings };
+  return { source: "isracard", account, transactions, statementTotal, warnings };
 }

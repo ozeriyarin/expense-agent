@@ -34,6 +34,26 @@ describe("import into SQLite", () => {
     expect(imports.rows.map((r) => [r["source"], r["rows"]])).toEqual([["cal", 9], ["hapoalim_account", 10]]);
   });
 
+  it("stores a question on import and the answer turns the row into an expense", async () => {
+    const { answerQuestion, listOpenQuestions, openQuestionCount } = await import("../../src/db/questions.js");
+    const { isracardRows } = await import("../fixtures/synthetic-exports.js");
+    const db = await openDb(":memory:");
+    const isr = join(dir, "isracard.xlsx");
+    writeFileSync(isr, rowsToXlsx(isracardRows()));
+    const s = await importFiles(db, [acct, isr]);
+    // Only the Isracard settlement (887.88) is compared with the Isracard statement total (999.99); Diners and Mastercard have no statement here.
+    expect(s.stats.questions).toBe(1);
+    const open = await listOpenQuestions(db);
+    expect(open).toHaveLength(1);
+    expect(open[0]?.options).toContain("cash_withdrawal");
+    await expect(answerQuestion(db, open[0]!.id, "banana")).rejects.toThrow(/must be one of/);
+    await answerQuestion(db, open[0]!.id, "cash_withdrawal", "took cash for the market");
+    expect(await openQuestionCount(db)).toBe(0);
+    const t = await db.execute({ sql: "SELECT kind, excluded FROM transactions WHERE id = ?", args: [open[0]!.txnId] });
+    expect(t.rows[0]).toMatchObject({ kind: "cash_withdrawal", excluded: 0 });
+    await expect(answerQuestion(db, open[0]!.id, "settlement")).rejects.toThrow(/already answered/);
+  });
+
   it("keeps flagged same-day repeats as separate rows", async () => {
     const db = await openDb(":memory:");
     const rows = calRows();

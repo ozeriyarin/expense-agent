@@ -77,5 +77,5 @@ export function parseHapoalimAccount(rows: Row[]): ParseResult {
       row: i + 1,
     });
   }
-  return { source: "hapoalim_account", account: "account", transactions, warnings };
+  return { source: "hapoalim_account", account: "account", transactions, statementTotal: null, warnings };
 }

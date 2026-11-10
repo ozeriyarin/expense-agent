@@ -30,7 +30,8 @@ export async function importFiles(db: Db, paths: string[]): Promise<ImportSummar
     parsed.push({ path, hash, result: parseExport(buf), skipped: existing.rows.length > 0 });
   }
 
-  const deduped = dedup(parsed.flatMap((p) => p.result.transactions.map((t) => ({ ...t, _path: p.path }))));
+  const statementTotals = parsed.flatMap((p) => (p.result.statementTotal === null ? [] : [{ source: p.result.source, total: p.result.statementTotal }]));
+  const deduped = dedup(parsed.flatMap((p) => p.result.transactions.map((t) => ({ ...t, _path: p.path }))), { statementTotals });
   let inserted = 0;
   let alreadyPresent = 0;
   const importIds = new Map<string, number>();
@@ -64,6 +65,16 @@ export async function importFiles(db: Db, paths: string[]): Promise<ImportSummar
     });
     if (r.rowsAffected > 0) inserted++;
     else alreadyPresent++;
+    if (row.question) {
+      const txn = await db.execute({ sql: "SELECT id FROM transactions WHERE txn_hash = ?", args: [hash] });
+      const txnId = txn.rows[0]?.["id"];
+      if (txnId !== undefined) {
+        await db.execute({
+          sql: "INSERT OR IGNORE INTO questions (txn_id, type, text, options) VALUES (?, ?, ?, ?)",
+          args: [txnId as number, row.question.type, row.question.text, JSON.stringify(row.question.options)],
+        });
+      }
+    }
   }
 
   return {

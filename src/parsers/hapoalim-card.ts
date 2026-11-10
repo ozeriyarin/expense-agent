@@ -26,6 +26,13 @@ export function parseHapoalimCard(rows: Row[]): ParseResult {
 
   const transactions: Transaction[] = [];
   let account = "card";
+  // Summary block: header "שם כרטיס | חיוב קודם | חיוב לתאריך", next row holds the statement total the bank settled.
+  let statementTotal: number | null = null;
+  const summaryIdx = rows.findIndex((r) => headerKey(r[0] ?? null) === "שם כרטיס" && r.map(headerKey).includes("חיוב קודם"));
+  if (summaryIdx >= 0) {
+    const c = findColumn(rows[summaryIdx]!, "חיוב קודם");
+    statementTotal = num(rows[summaryIdx + 1] ?? [], c);
+  }
   for (const h of headerIdxs) {
     const header = rows[h]!;
     const cCard = findColumn(header, "שם כרטיס");
@@ -84,5 +91,5 @@ export function parseHapoalimCard(rows: Row[]): ParseResult {
       });
     }
   }
-  return { source: "hapoalim_card", account, transactions, warnings };
+  return { source: "hapoalim_card", account, transactions, statementTotal, warnings };
 }

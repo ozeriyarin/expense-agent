@@ -37,6 +37,18 @@ export const SCHEMA: string[] = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date)`,
   `CREATE INDEX IF NOT EXISTS idx_transactions_merchant ON transactions(merchant)`,
+  `CREATE TABLE IF NOT EXISTS questions (
+    id INTEGER PRIMARY KEY,
+    txn_id INTEGER NOT NULL REFERENCES transactions(id),
+    type TEXT NOT NULL,
+    text TEXT NOT NULL,
+    options TEXT NOT NULL,
+    answer TEXT,
+    note TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    answered_at TEXT,
+    UNIQUE (txn_id, type)
+  )`,
   `CREATE TABLE IF NOT EXISTS call_log (
     id INTEGER PRIMARY KEY,
     at TEXT NOT NULL DEFAULT (datetime('now')),

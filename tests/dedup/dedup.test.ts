@@ -36,6 +36,17 @@ describe("dedup (v2-parsers criterion 8)", () => {
     expect(r.stats.duplicateGroups).toBe(0);
   });
 
+  it("accepts settlements that match a statement total (within 1.5 ILS) and questions the rest", () => {
+    const settle = (amount: number, row: number) => tx({ source: "hapoalim_account", account: "account", kind: "card_settlement", merchant: "ישראכרט", amount, row });
+    const diners = tx({ source: "hapoalim_account", account: "account", kind: "card_settlement", merchant: "דיינרס קלוב יש", amount: 10068.4, row: 4 });
+    const r = dedup([settle(887.88, 1), settle(1000, 2), settle(179.59, 3), diners], { statementTotals: [{ source: "isracard", total: 887.88 }, { source: "isracard", total: 178.41 }] });
+    expect(r.rows.map((x) => x.question?.type ?? null)).toEqual([null, "unmatched_settlement", null, null]);
+    expect(r.rows.every((x) => x.excluded)).toBe(true);
+    expect(r.stats.questions).toBe(1);
+    expect(r.rows[1]?.question?.options).toEqual(["cash_withdrawal", "settlement", "other"]);
+    expect(dedup([settle(1000, 1)]).stats.questions).toBe(0); // no statements known: accept silently
+  });
+
   it("reports validation problems by row without dropping the row", () => {
     const r = dedup([tx({ date: "3/10/2026", amount: Number.NaN, merchant: " " })]);
     expect(r.rows).toHaveLength(1);

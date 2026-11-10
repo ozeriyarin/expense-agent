@@ -72,5 +72,5 @@ export function parseCal(rows: Row[]): ParseResult {
       row: i + 1,
     });
   }
-  return { source: "cal", account, transactions, warnings };
+  return { source: "cal", account, transactions, statementTotal: null, warnings };
 }
