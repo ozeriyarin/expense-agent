@@ -1,0 +1,36 @@
+# --- secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- financial data: never in the repo (lives in EXPENSE_DATA_DIR, default C:\expense-data) ---
+*.csv
+*.xlsx
+*.xls
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+data/
+exports/
+eval-private/
+traces/
+uploads/
+# allow synthetic fixtures only
+!tests/fixtures/**/*.csv
+!tests/fixtures/**/*.xlsx
+
+# --- build / deps ---
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vitest/
+
+# --- editors / os ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Git pre-commit: data/secret guard, then the offline test suite. Install with: npm run hooks:install
+set -e
+node scripts/guard-staged.mjs
+npx vitest run --reporter=dot
